@@ -138,6 +138,7 @@
 import asyncio
 import json
 import websockets
+import websockets.connection
 
 # Global set of connected client websockets (to broadcast news messages)
 connected_clients = set()
@@ -151,7 +152,7 @@ async def news_fetcher():
 
     while True:
         try:
-            async with websockets.connect(external_ws_url, extra_headers=header) as ext_ws:
+            async with websockets.connect(external_ws_url, additional_headers=header) as ext_ws:
                 print("Connected to external WebSocket API.")
                 async for incoming_data in ext_ws:
                     try:
