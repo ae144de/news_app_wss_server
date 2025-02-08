@@ -139,6 +139,7 @@ import asyncio
 import json
 import websockets
 import websockets.connection
+import websockets.server
 
 # Global set of connected client websockets (to broadcast news messages)
 connected_clients = set()
@@ -235,11 +236,23 @@ async def broadcast_to_clients(message):
 # -----------------------------------------------------------------------------
 # 3. WebSocket Server: Handles connections from React Native clients.
 # -----------------------------------------------------------------------------
+# async def client_handler(websocket, path):
+#     print("React Native client connected.")
+#     connected_clients.add(websocket)
+#     try:
+#         # Optionally, you can listen for messages from the client (if needed).
+#         async for client_message in websocket:
+#             print("Message from client:", client_message)
+#     except websockets.ConnectionClosed:
+#         print("Client disconnected.")
+#     finally:
+#         connected_clients.remove(websocket)
+
+# Correct definition of the client handler:
 async def client_handler(websocket, path):
-    print("React Native client connected.")
+    print("React Native client connected on path:", path)
     connected_clients.add(websocket)
     try:
-        # Optionally, you can listen for messages from the client (if needed).
         async for client_message in websocket:
             print("Message from client:", client_message)
     except websockets.ConnectionClosed:
@@ -253,9 +266,9 @@ async def client_handler(websocket, path):
 async def main():
     # Start the news fetcher (connects to external API).
     news_task = asyncio.create_task(news_fetcher())
-    
+
     # Start the WebSocket server for React Native clients on port 8000.
-    server = await websockets.serve(client_handler, "0.0.0.0", 8000)
+    server = await websockets.server.serve(client_handler, "0.0.0.0", 8000)
     print("WebSocket server started at ws://0.0.0.0:8000")
     
     # Run indefinitely.
